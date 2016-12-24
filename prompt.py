@@ -1,13 +1,17 @@
-from cmd import Cmd
+class Prompt():
 
-class Prompt(Cmd):
+    def ask_name(self):
+        return input('name: ')
 
-    def do_ask_name(self,line):
-        print('give me the name')
+    def write_to_prompt(self, text=''):
+        print(text)
+    
+    def greet(self, greet_text=None):
+        default_greet_text = 'Hi there! So you want to install a new program? give me a couple of infos.'
+        self.write_to_prompt(greet_text or default_greet_text)
 
-    def do_EOF(self,line):
-        return True
-
-
-if __name__ == '__main__':
-    Prompt().cmdloop()
+    def ask_confirmation(self, request_text=''):
+        yes_no_prompt = ' (yes/NO): '
+        affermative_answers = ('yes', 'y', 'affermative', 'yep', 'yup')
+        reply = input(request_text + yes_no_prompt)
+        return reply.lower() in affermative_answers
