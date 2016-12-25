@@ -2,15 +2,16 @@ import subprocess
 import re
 import os
 import json
+from prompt import Prompt
 
 class CandidateProgram():
 
     default_update_command = 'sudo apt-get update'
     default_install_command = 'sudo apt-get install -y {0}'
     
-    def __init__(self, aka_name='', name_in_repo=''):
-        self.aka_name = aka_name
-        self.name_in_repo = aka_name
+    def __init__(self, **kwargs):
+        for key, value in kwargs.items():
+            setattr(self, key, value)
 
     def lookup_name_in_current_repos(self, program_name):
         #self.update_sys_list()
@@ -23,17 +24,17 @@ class CandidateProgram():
             m = select_start_to_hyphen.search(l)
             if m:
                 program_list.append(m.groups()[0])
-        candidates_output = 'candidates found in your local repos:\n' + '\n'.join(program_list)
-        print(candidates_output)
+        print('candidates found in your local repos: ')
+        Prompt.column_print(program_list)
         return program_name in program_list
         
     def update_sys_list(self):
         update_command = BashCommand(self.default_update_command, v=0)
         update_command.run()
         
-    def install(self):
+    def install(self, v=3):
         self.install_command_text = self.default_install_command.format(self.name_in_repo)
-        install_command = BashCommand(self.install_command_text, v=3)
+        install_command = BashCommand(self.install_command_text, v)
         print('installing: {0}'.format(self.name_in_repo))
         install_command.run()
 
@@ -76,7 +77,7 @@ class JsonLogger():
         self.location = location
 
     def write_to_file(self, single_dict):
-        current_json = self.open_and_read()
+        current_json = self.open_and_read(create_folder=True)
         if current_json:
             current_json.update(single_dict)
         else:
@@ -84,12 +85,13 @@ class JsonLogger():
         with open(self.location, 'w+') as f:
             json.dump(current_json, f)
             
-    def open_and_read(self):
+    def open_and_read(self, create_folder=False):
         if os.path.exists(self.location):
             with open(self.location, 'r') as f:
                 return json.load(f)
         else:
-            self.exist_create_folder(os.path.dirname(self.location))
+            if create_folder:
+                self.exist_create_folder(os.path.dirname(self.location))
             return False
 
     @staticmethod
