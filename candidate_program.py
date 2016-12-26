@@ -2,6 +2,7 @@ import subprocess
 import re
 import os
 import json
+import sys
 from prompt import Prompt
 
 class CandidateProgram():
@@ -9,6 +10,7 @@ class CandidateProgram():
     default_update_command = 'sudo apt-get update'
     default_install_command = 'sudo apt-get install -y {0}'
     default_add_ppa_command = 'sudo add-apt-repository -y ppa:{0}'
+    default_sources_folder = '/etc/apt/sources.list.d'
     
     def __init__(self, **kwargs):
         self.aka_name = ''
@@ -36,9 +38,10 @@ class CandidateProgram():
         Prompt.column_print(program_list)
         return program_name in program_list
         
-    def update_sys_list(self):
-        update_command = BashCommand(self.default_update_command, v=0)
-        update_command.run()
+    def update_sys_list(self, mandatory=False):
+        r ='error' if mandatory else None
+        update_command = BashCommand(self.default_update_command, v=0, r=r)
+        return update_command.run()
         
     def install(self, v=3):
         self.install_command_text = self.default_install_command.format(self.name_in_repo)
@@ -67,8 +70,13 @@ class CandidateProgram():
         if not self.deb_repo:
             return
         full_repo_string = 'deb {0}'.format(self.deb_repo)
-        
-        self.update_sys_list()
+        repo_file_location = os.path.join(self.default_sources_folder, '{0}.list'.format(self.aka_name))
+        FileHandler.exist_create_folder(self.default_sources_folder)
+        FileHandler.exist_add_line(repo_file_location, self.deb_repo)
+        exit_status = self.update_sys_list(mandatory=True)
+        if exit_status > 0:
+            FileHandler.remove_file(repo_file_location)
+            sys.exit(1)
 
 class BashCommand():
 
@@ -79,11 +87,15 @@ class BashCommand():
 
     def run(self):
         self.execution_results = subprocess.run(self.command.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
-        self.handle_results()
         if self.return_parameter == 'output':
+            self.handle_results()
             return self.execution_results.stdout
+        elif self.return_parameter == 'error':
+            return self.handle_results(raise_on_error=False)
+        else:
+            self.handle_results()
 
-    def handle_results(self):
+    def handle_results(self, raise_on_error=True):
         if self.verbose >= 2:
             print(self.execution_results.stdout)
         if self.verbose >= 1:
@@ -92,7 +104,11 @@ class BashCommand():
             assert self.execution_results.returncode == 0
         except AssertionError:
             Prompt.write_to_prompt('!!!Something went wrong there!!!')
-            raise
+            if raise_on_error:
+                raise
+            else:
+                return 1
+            
         
 class JsonLogger():
 
@@ -127,3 +143,28 @@ class FileHandler():
     def exist_create_folder(folderpath):
         if not os.path.exists(folderpath):
             os.makedirs(folderpath)
+
+    @staticmethod
+    def exist_add_line(file_location, line_to_add):
+        FileHandler.exist_add_file(file_location)
+        with open(file_location, 'r+') as f:
+            line_already_in_file = False
+            for line in f:
+                if line_to_add in line:
+                    line_already_in_file = True
+            if not line_already_in_file:
+                f.write(line_to_add)
+                
+    @staticmethod
+    def exist_add_file(file_location):
+        if not os.path.exists(file_location):
+            with open(file_location, 'w+') as f:
+                f.write('')
+
+    @staticmethod
+    def search_in_file(file_location, search_string):
+        pass
+
+    @staticmethod
+    def remove_file(file_location):
+        os.remove(file_location)
