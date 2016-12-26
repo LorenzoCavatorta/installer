@@ -1,5 +1,11 @@
 from candidate_program import CandidateProgram
 from prompt import Prompt
+from sys import exit
+
+def exit_installer(prompt=None):
+    if prompt:
+        prompt.greet_off()        
+    sys.exit(0)
 
 if __name__ == "__main__":
 
@@ -16,8 +22,12 @@ if __name__ == "__main__":
             candidate.name_in_repo = candidate.aka_name
             candidate.install()
             candidate.dump_success()
-    else:
-        pass
-        
-    
-    
+        exit_installer(prompt)
+    if prompt.ask_confirmation('Do you want to install one from this list? '):
+        candidate.name_in_repo = prompt.ask_text('Which one? ')
+        candidate.install()
+        candidate.dump_success()
+    if prompt.ask_confirmation('Do you need to add a repo?'):
+        repo_name = prompt.ask_text('Insert repo details: ')
+        candidate.add_repo_ppa(repo_name)
+

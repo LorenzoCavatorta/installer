@@ -8,8 +8,15 @@ class CandidateProgram():
 
     default_update_command = 'sudo apt-get update'
     default_install_command = 'sudo apt-get install -y {0}'
+    default_add_ppa_command = 'sudo add-apt-repository ppa:{0}'
     
     def __init__(self, **kwargs):
+        """ attributes used:
+        aka_name
+        name_in_repo
+        install_command_text
+        install_type
+        """
         for key, value in kwargs.items():
             setattr(self, key, value)
 
@@ -47,6 +54,10 @@ class CandidateProgram():
         )
         success_logger.write_to_file({self.aka_name: install_infos})
 
+    def add_repo_ppa(self, repo_name, add_command_text=default_add_ppa_command):
+        add_repo_command = BashCommand(add_command_text.format(repo_name), v=1)
+        add_repo_command.run()
+
 class BashCommand():
 
     def __init__(self, command_body='', v=0, r=None):
@@ -65,7 +76,11 @@ class BashCommand():
             print(self.execution_results.stdout)
         if self.verbose >= 1:
             print(self.execution_results.stderr)
-        assert self.execution_results.returncode == 0
+        try:
+            assert self.execution_results.returncode == 0
+        except AssertionError:
+            Prompt.write_to_prompt('!!!Something went wrong there!!!')
+            raise
         
 class JsonLogger():
 
