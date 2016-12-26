@@ -50,9 +50,7 @@ class Prompt():
         print(column_string.format(*str_list[-remains:]))
         Prompt.write_separator(max_length * col_number)
     
-
-
     @staticmethod
     def greet_off():
         greet_off_default = 'See Ya!'
-        prompt.write_to_prompt(greet_off_default)
+        Prompt.write_to_prompt(greet_off_default)

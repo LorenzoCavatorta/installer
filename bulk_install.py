@@ -18,5 +18,6 @@ if __name__ == "__main__":
         sys.exit(0)
     for program, install_instruction in instructions.items():
         candidate = CandidateProgram(**install_instruction)
+        candidate.add_repo_ppa(self.repo_name)
         candidate.install(v=1)
         

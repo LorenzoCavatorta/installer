@@ -1,6 +1,6 @@
 from candidate_program import CandidateProgram
 from prompt import Prompt
-from sys import exit
+import sys
 
 def exit_installer(prompt=None):
     if prompt:
@@ -17,8 +17,7 @@ if __name__ == "__main__":
     if candidate.lookup_name_in_current_repos(candidate.aka_name):
         success_text = 'found a program in your current repos called exactly {0}'.format(candidate.aka_name)
         ask_text = '\nDo you want me to install that one?'
-        candidate.install_flag = prompt.ask_confirmation(success_text + ask_text)
-        if candidate.install_flag:
+        if prompt.ask_confirmation(success_text + ask_text):
             candidate.name_in_repo = candidate.aka_name
             candidate.install()
             candidate.dump_success()
@@ -27,7 +26,22 @@ if __name__ == "__main__":
         candidate.name_in_repo = prompt.ask_text('Which one? ')
         candidate.install()
         candidate.dump_success()
+        exit_installer(prompt)
     if prompt.ask_confirmation('Do you need to add a repo?'):
-        repo_name = prompt.ask_text('Insert repo details: ')
-        candidate.add_repo_ppa(repo_name)
+        candidate.ppa_repo = prompt.ask_text('Insert PPA repo details [or press enter to skip to sources.list repo].\nppa:')
+        if candidate.ppa_repo:
+            candidate.add_repo_ppa()
+            candidate.lookup_name_in_current_repos(candidate.aka_name)
+            candidate.name_in_repo = prompt.ask_text('Which one would you like to install? ')
+            candidate.install()
+            candidate.dump_success()
+            exit_installer(prompt)
+        else:
+            candidate.deb_repo = prompt.ask_text('Insert string to add to apt sources. \ndeb ')
+            candidate.add_repo_deb()
+            candidate.lookup_name_in_current_repos(candidate.aka_name)
+            candidate.name_in_repo = prompt.ask_text('Which one would you like to install? ')
+            candidate.install()
+            candidate.dump_success()
+            exit_installer(prompt)
 

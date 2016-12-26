@@ -8,17 +8,18 @@ class CandidateProgram():
 
     default_update_command = 'sudo apt-get update'
     default_install_command = 'sudo apt-get install -y {0}'
-    default_add_ppa_command = 'sudo add-apt-repository ppa:{0}'
+    default_add_ppa_command = 'sudo add-apt-repository -y ppa:{0}'
     
     def __init__(self, **kwargs):
-        """ attributes used:
-        aka_name
-        name_in_repo
-        install_command_text
-        install_type
-        """
+        self.aka_name = ''
+        self.name_in_repo = '' 
+        self.install_command_text = ''
+        self.install_type = 'std from std repo'
+        self.ppa_repo = ''
+        self.deb_repo = ''
         for key, value in kwargs.items():
             setattr(self, key, value)
+
 
     def lookup_name_in_current_repos(self, program_name):
         #self.update_sys_list()
@@ -50,13 +51,24 @@ class CandidateProgram():
         install_infos = dict( aka_name = self.aka_name,
                               name_in_repo = self.name_in_repo,
                               install_command_text = self.install_command_text,
-                              install_type = 'std install in current repos',
+                              install_type = self.install_type,
+                              ppa_repo = self.ppa_repo,
         )
         success_logger.write_to_file({self.aka_name: install_infos})
 
-    def add_repo_ppa(self, repo_name, add_command_text=default_add_ppa_command):
-        add_repo_command = BashCommand(add_command_text.format(repo_name), v=1)
+    def add_repo_ppa(self, v=3, add_command_text=default_add_ppa_command):
+        if not self.ppa_repo:
+            return
+        add_repo_command = BashCommand(add_command_text.format(self.ppa_repo), v=v)
         add_repo_command.run()
+        self.update_sys_list()
+
+    def add_repo_deb(self, v=3):
+        if not self.deb_repo:
+            return
+        full_repo_string = 'deb {0}'.format(self.deb_repo)
+        
+        self.update_sys_list()
 
 class BashCommand():
 
@@ -106,9 +118,11 @@ class JsonLogger():
                 return json.load(f)
         else:
             if create_folder:
-                self.exist_create_folder(os.path.dirname(self.location))
+                FileHandler.exist_create_folder(os.path.dirname(self.location))
             return False
 
+class FileHandler():
+    
     @staticmethod
     def exist_create_folder(folderpath):
         if not os.path.exists(folderpath):
