@@ -70,9 +70,12 @@ class CandidateProgram():
         if not self.deb_repo:
             return
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
         full_repo_string = 'deb {0}'.format(self.deb_repo)
 >>>>>>> 4507236b1f1decb8b2b01711ae6a43b391a20136
+=======
+>>>>>>> 5f12ac6d1c05ca4e9e35d8a1c96ee26ff61dbb71
         repo_file_location = os.path.join(self.default_sources_folder, '{0}.list'.format(self.aka_name))
         FileHandler.exist_create_folder(self.default_sources_folder)
         FileHandler.exist_add_line(repo_file_location, self.deb_repo)
@@ -101,6 +104,10 @@ class BashCommand():
         
     def run(self):
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+
+>>>>>>> 5f12ac6d1c05ca4e9e35d8a1c96ee26ff61dbb71
         self.check_for_pipes()
         proc1 = subprocess.Popen(self.command.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
         self.return_code = proc1.wait()
@@ -124,6 +131,7 @@ class BashCommand():
             self.handle_results()
             return self.return_code
         
+<<<<<<< HEAD
 =======
         self.execution_results = subprocess.run(self.command.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
         if self.return_parameter == 'output':
@@ -135,6 +143,8 @@ class BashCommand():
             self.handle_results()
 
 >>>>>>> 4507236b1f1decb8b2b01711ae6a43b391a20136
+=======
+>>>>>>> 5f12ac6d1c05ca4e9e35d8a1c96ee26ff61dbb71
     def handle_results(self, raise_on_error=True):
         if self.verbose >= 2:
             print(self.execution_stdout)
@@ -149,10 +159,14 @@ class BashCommand():
             else:
                 return 1
 <<<<<<< HEAD
+<<<<<<< HEAD
         return 0
 =======
             
 >>>>>>> 4507236b1f1decb8b2b01711ae6a43b391a20136
+=======
+        return 0
+>>>>>>> 5f12ac6d1c05ca4e9e35d8a1c96ee26ff61dbb71
         
 class JsonLogger():
 
