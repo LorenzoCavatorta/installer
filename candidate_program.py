@@ -96,6 +96,7 @@ class BashCommand():
             self.command = self.command[:self.command.find('|')]
         
     def run(self):
+
         self.check_for_pipes()
         proc1 = subprocess.Popen(self.command.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
         self.return_code = proc1.wait()
