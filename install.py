@@ -21,7 +21,7 @@ if __name__ == "__main__":
             candidate.name_in_repo = candidate.aka_name
             candidate.install()
             candidate.dump_success()
-        exit_installer(prompt)
+            exit_installer(prompt)
     if prompt.ask_confirmation('Do you want to install one from this list? '):
         candidate.name_in_repo = prompt.ask_text('Which one? ')
         candidate.install()
@@ -37,7 +37,10 @@ if __name__ == "__main__":
             candidate.dump_success()
             exit_installer(prompt)
         else:
-            candidate.deb_repo = prompt.ask_text('Insert string to add to apt sources. \ndeb ')
+            candidate.deb_repo = prompt.ask_text('Insert string to add to apt sources. \n')
+            if prompt.ask_confirmation('Does it need a key?'):
+                candidate.repo_key = prompt.ask_text('Insert bash command to add key:\n')
+                candidate.add_repo_key()
             candidate.add_repo_deb()
             candidate.lookup_name_in_current_repos(candidate.aka_name)
             candidate.name_in_repo = prompt.ask_text('Which one would you like to install? ')

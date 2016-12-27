@@ -2,6 +2,7 @@ import subprocess
 import re
 import os
 import json
+import sys
 from prompt import Prompt
 
 class CandidateProgram():
@@ -9,6 +10,7 @@ class CandidateProgram():
     default_update_command = 'sudo apt-get update'
     default_install_command = 'sudo apt-get install -y {0}'
     default_add_ppa_command = 'sudo add-apt-repository -y ppa:{0}'
+    default_sources_folder = '/etc/apt/sources.list.d'
     
     def __init__(self, **kwargs):
         self.aka_name = ''
@@ -36,9 +38,10 @@ class CandidateProgram():
         Prompt.column_print(program_list)
         return program_name in program_list
         
-    def update_sys_list(self):
-        update_command = BashCommand(self.default_update_command, v=0)
-        update_command.run()
+    def update_sys_list(self, mandatory=False):
+        r ='error' if mandatory else None
+        update_command = BashCommand(self.default_update_command, v=0, r=r)
+        return update_command.run()
         
     def install(self, v=3):
         self.install_command_text = self.default_install_command.format(self.name_in_repo)
@@ -66,33 +69,70 @@ class CandidateProgram():
     def add_repo_deb(self, v=3):
         if not self.deb_repo:
             return
-        full_repo_string = 'deb {0}'.format(self.deb_repo)
-        
-        self.update_sys_list()
+        repo_file_location = os.path.join(self.default_sources_folder, '{0}.list'.format(self.aka_name))
+        FileHandler.exist_create_folder(self.default_sources_folder)
+        FileHandler.exist_add_line(repo_file_location, self.deb_repo)
+        exit_status = self.update_sys_list(mandatory=True)
+        if exit_status > 0:
+            FileHandler.remove_file(repo_file_location)
+            sys.exit(1)
 
+    def add_repo_key(self):
+        add_repo_command = BashCommand(self.repo_key, v=2)
+        return_code = add_repo_command.run()
+
+        
 class BashCommand():
 
-    def __init__(self, command_body='', v=0, r=None):
+    def __init__(self, command_body='', v=0, r=None, command_pipe_in=''):
         self.command = command_body
+        self.command_pipe_in = command_pipe_in
         self.verbose = v
         self.return_parameter = r
 
+    def check_for_pipes(self):
+        if '|' in self.command:
+            self.command_pipe_in = self.command[self.command.find('|')+1:]
+            self.command = self.command[:self.command.find('|')]
+        
     def run(self):
-        self.execution_results = subprocess.run(self.command.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
-        self.handle_results()
+        self.check_for_pipes()
+        proc1 = subprocess.Popen(self.command.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
+        self.return_code = proc1.wait()
+        pipe_return_code = 0
+        if self.command_pipe_in:
+            proc2 = subprocess.Popen(self.command_pipe_in.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=proc1.stdout)
+            pipe_return_code = proc2.wait()
+        self.return_code = self.return_code + pipe_return_code
+        self.execution_stdout = proc1.stdout.read()
+        self.execution_stderr = proc1.stderr.read()
+        if self.command_pipe_in:
+            self.execution_stdout = proc2.stdout.read()
+            self.execution_stderr = proc2.stderr.read()
         if self.return_parameter == 'output':
-            return self.execution_results.stdout
-
-    def handle_results(self):
+            self.handle_results()
+            return self.execution_stdout
+        elif self.return_parameter == 'error':
+            self.handle_results(raise_on_error=False)
+            return self.return_code
+        else:
+            self.handle_results()
+            return self.return_code
+        
+    def handle_results(self, raise_on_error=True):
         if self.verbose >= 2:
-            print(self.execution_results.stdout)
+            print(self.execution_stdout)
         if self.verbose >= 1:
-            print(self.execution_results.stderr)
+            print(self.execution_stderr)
         try:
-            assert self.execution_results.returncode == 0
+            assert self.return_code == 0
         except AssertionError:
             Prompt.write_to_prompt('!!!Something went wrong there!!!')
-            raise
+            if raise_on_error:
+                raise
+            else:
+                return 1
+        return 0
         
 class JsonLogger():
 
@@ -127,3 +167,28 @@ class FileHandler():
     def exist_create_folder(folderpath):
         if not os.path.exists(folderpath):
             os.makedirs(folderpath)
+
+    @staticmethod
+    def exist_add_line(file_location, line_to_add):
+        FileHandler.exist_add_file(file_location)
+        with open(file_location, 'r+') as f:
+            line_already_in_file = False
+            for line in f:
+                if line_to_add in line:
+                    line_already_in_file = True
+            if not line_already_in_file:
+                f.write(line_to_add)
+                
+    @staticmethod
+    def exist_add_file(file_location):
+        if not os.path.exists(file_location):
+            with open(file_location, 'w+') as f:
+                f.write('')
+
+    @staticmethod
+    def search_in_file(file_location, search_string):
+        pass
+
+    @staticmethod
+    def remove_file(file_location):
+        os.remove(file_location)
