@@ -19,6 +19,7 @@ if __name__ == "__main__":
     for program, install_instruction in instructions.items():
         candidate = CandidateProgram(**install_instruction)
         candidate.add_repo_ppa()
+        candidate.add_repo_key()
         candidate.add_repo_deb()
         candidate.install(v=1)
         

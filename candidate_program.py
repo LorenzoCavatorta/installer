@@ -19,6 +19,7 @@ class CandidateProgram():
         self.install_type = 'std from std repo'
         self.ppa_repo = ''
         self.deb_repo = ''
+        self.repo_key = ''
         for key, value in kwargs.items():
             setattr(self, key, value)
 
@@ -56,6 +57,8 @@ class CandidateProgram():
                               install_command_text = self.install_command_text,
                               install_type = self.install_type,
                               ppa_repo = self.ppa_repo,
+                              deb_repo = self.deb_repo,
+                              repo_key = self.repo_key
         )
         success_logger.write_to_file({self.aka_name: install_infos})
 
@@ -78,6 +81,8 @@ class CandidateProgram():
             sys.exit(1)
 
     def add_repo_key(self):
+        if not self.repo_key:
+            return
         add_repo_command = BashCommand(self.repo_key, v=2)
         return_code = add_repo_command.run()
 
@@ -96,7 +101,6 @@ class BashCommand():
             self.command = self.command[:self.command.find('|')]
         
     def run(self):
-
         self.check_for_pipes()
         proc1 = subprocess.Popen(self.command.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
         self.return_code = proc1.wait()

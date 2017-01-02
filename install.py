@@ -31,6 +31,7 @@ if __name__ == "__main__":
         candidate.ppa_repo = prompt.ask_text('Insert PPA repo details [or press enter to skip to sources.list repo].\nppa:')
         if candidate.ppa_repo:
             candidate.add_repo_ppa()
+            candidate.install_type = 'from ppa repo'
             candidate.lookup_name_in_current_repos(candidate.aka_name)
             candidate.name_in_repo = prompt.ask_text('Which one would you like to install? ')
             candidate.install()
@@ -42,6 +43,7 @@ if __name__ == "__main__":
                 candidate.repo_key = prompt.ask_text('Insert bash command to add key:\n')
                 candidate.add_repo_key()
             candidate.add_repo_deb()
+            candidate.install_type = 'from deb repo'
             candidate.lookup_name_in_current_repos(candidate.aka_name)
             candidate.name_in_repo = prompt.ask_text('Which one would you like to install? ')
             candidate.install()
