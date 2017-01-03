@@ -1,43 +1,67 @@
+;; INSTALL PACKAGES
+;; --------------------------------------
 
-;; Added by Package.el.  This must come before configurations of
-;; installed packages.  Don't delete this line.  If you don't want it,
-;; just comment it out by adding a semicolon to the start of the line.
-;; You may delete these explanatory comments.
+;;repos
+(require 'package)
+
+(add-to-list 'package-archives
+       '("melpa" . "http://melpa.org/packages/") t)
+
+(add-to-list 'package-archives '
+	     ("marmalade" . "http://marmalade-repo.org/packages/") t)
+
 (package-initialize)
+(when (not package-archive-contents)
+  (package-refresh-contents))
 
-(load-theme 'tango-dark t)
+;;chosen packages
+(defvar myPackages
+  '(better-defaults
+    material-theme
+    helm
+    jedi
+    projectile))
 
+(mapc #'(lambda (package)
+    (unless (package-installed-p package)
+      (package-install package)))
+      myPackages)
+
+;; appearance
+(menu-bar-mode -1)
+(toggle-scroll-bar -1)
+(tool-bar-mode -1)
+(setq inhibit-startup-message t) ;; hide the startup message
+(load-theme 'material t)  ;; load material theme
+(global-linum-mode t) ;; enable line numbers globally
 (add-to-list 'default-frame-alist '(fullscreen . maximized))
+
+
+;; enable python IDE
+(elpy-enable)
+(add-hook 'python-mode-hook 'jedi:setup)
+(setq jedi:complete-on-dot t) 
+(setq jedi:use-shortcuts t)
+
+;;key bindings
+(global-set-key (kbd "M-x") 'helm-M-x)
+
+;;folders setup
+(getenv "HOME")
+(setq default-directory "~/projects/")
+
+
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(inhibit-startup-screen t)
- '(package-selected-packages (quote (## helm multiple-cursors elpy))))
+ '(package-selected-packages
+   (quote
+    (material-theme better-defaults multiple-cursors helm elpy))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  )
-
-(global-unset-key (kbd "M-<down-mouse-1>")) 
-(global-set-key (kbd "M-<mouse-1>") 'mc/add-cursor-on-click)
-(global-linum-mode t)
-
-
-(require 'package)
-(add-to-list 'package-archives
-             '("melpa" . "https://melpa.org/packages/") t)
-(when (< emacs-major-version 24)
-  ;; For important compatibility libraries like cl-lib
-  (add-to-list 'package-archives '("gnu" . "https://elpa.gnu.org/packages/")))
-(package-initialize)
-
-;; helm configs
-(require 'helm-config)
-(global-set-key (kbd "M-x") 'helm-M-x)
-
-(getenv "HOME")
-(setq default-directory "~/projects/")
