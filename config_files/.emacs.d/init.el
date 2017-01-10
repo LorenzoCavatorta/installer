@@ -20,7 +20,8 @@
     material-theme
     helm
     jedi
-    projectile))
+    projectile
+    helm-projectile))
 
 (mapc #'(lambda (package)
     (unless (package-installed-p package)
@@ -58,7 +59,8 @@
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
    (quote
-    (material-theme better-defaults multiple-cursors helm elpy))))
+    (material-theme better-defaults multiple-cursors helm elpy)))
+ '(reb-re-syntax (quote string)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
