@@ -22,7 +22,9 @@
     jedi
     projectile
     helm-projectile
-    helm-ag))
+    helm-ag
+    dumb-jump
+    column-marker))
 
 (mapc #'(lambda (package)
     (unless (package-installed-p package)
@@ -37,6 +39,8 @@
 (load-theme 'material t)  ;; load material theme
 (global-linum-mode t) ;; enable line numbers globally
 (add-to-list 'default-frame-alist '(fullscreen . maximized))
+(setq-default frame-title-format "%b (%f)") ;;shows file path for current buffer in the frame title
+(add-hook 'python-mode-hook (lambda () (interactive) (column-marker-1 80)))
 
 ;; enable python IDE
 (elpy-enable)
@@ -70,8 +74,25 @@
         (kill-buffer buffer)
         (message "File '%s' successfully removed" filename)))))
 
+(defun uniquify-all-lines-region (start end)
+  "Find duplicate lines in region START to END keeping first occurrence."
+  (interactive "*r")
+  (save-excursion
+    (let ((end (copy-marker end)))
+      (while
+          (progn
+            (goto-char start)
+            (re-search-forward "^\\(.*\\)\n\\(\\(.*\n\\)*\\)\\1\n" end t))
+        (replace-match "\\1\n\\2")))))
+
+(defun uniquify-all-lines-buffer ()
+  "Delete duplicate lines in buffer and keep first occurrence."
+  (interactive "*")
+  (uniquify-all-lines-region (point-min) (point-max)))
+
 ;;behaviours
 (global-auto-revert-mode t)
+;;(dumb-jump-mode) ;; would activate dumb jump mode key bindings
 
 ;;key bindings
 (global-set-key (kbd "M-x") 'helm-M-x)
@@ -80,6 +101,15 @@
 (global-set-key (kbd "C-z C-S-n") 'helm-projectile)
 (global-set-key (kbd "C-z C-S-M-c") 'my-put-file-name-on-clipboard)
 (global-set-key (kbd "C-z C-M-k") 'my-delete-this-buffer-and-file)
+(global-set-key (kbd "C-z C-b") 'dumb-jump-go)
+(global-set-key (kbd "C-z C-z C-b") 'dumb-jump-go-other-window)
+(global-set-key (kbd "C-z C-q") 'dumb-jump-quick-look)
+(global-set-key (kbd "C-z C-p") 'dumb-jump-back)
+;;windows bindings
+(global-set-key (kbd "s-<left>") 'shrink-window-horizontally)
+(global-set-key (kbd "s-<right>") 'enlarge-window-horizontally)
+(global-set-key (kbd "s-<down>") 'shrink-window)
+(global-set-key (kbd "s-<up>") 'enlarge-window)
 
 ;;folders setup
 (getenv "HOME")
