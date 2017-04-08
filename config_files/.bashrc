@@ -96,7 +96,25 @@ alias ll='ls -alF'
 alias la='ls -A'
 alias l='ls -CF'
 
+# functions/aliases
 alias slsk='nohup ~/slsk/SoulseekQt-2016-1-17-64bit &'
+
+
+function beet_to_fiio() {
+    if [ -z ${1} ]; then
+        echo "need to give a beet query to find files to move"
+        return 1
+    fi
+    DEFAULT_FIIO_MNT="/media/lollo/X5II TF1/"
+    if [ -z "$FIIO_MNT" ]; then
+        if [ -d "$DEFAULT_FIIO_MNT" ]; then
+            FIIO_MNT=$DEFAULT_FIIO_MNT
+        else
+            echo "could not find Fiio mount point, can override by setting FIIO_MNT"
+        fi
+    fi
+    beet move -c -d "${FIIO_MNT}" "${@}"
+}
 
 # Add an "alert" alias for long running commands.  Use like so:
 #   sleep 10; alert
