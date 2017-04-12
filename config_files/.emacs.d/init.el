@@ -24,7 +24,8 @@
     helm-projectile
     helm-ag
     dumb-jump
-    column-marker))
+    ;;column-marker
+    csv-mode))
 
 (mapc #'(lambda (package)
     (unless (package-installed-p package)
@@ -40,7 +41,7 @@
 (global-linum-mode t) ;; enable line numbers globally
 (add-to-list 'default-frame-alist '(fullscreen . maximized))
 (setq-default frame-title-format "%b (%f)") ;;shows file path for current buffer in the frame title
-(add-hook 'python-mode-hook (lambda () (interactive) (column-marker-1 80)))
+;;(add-hook 'python-mode-hook (lambda () (interactive) (column-marker-1 80)))
 
 ;; enable python IDE
 (elpy-enable)
@@ -114,6 +115,7 @@
 (global-set-key [M-right] 'windmove-right)        ; move to right window
 (global-set-key [M-up] 'windmove-up)              ; move to upper window
 (global-set-key [M-down] 'windmove-down)          ; move to lower window
+(global-set-key (kbd "C-x m") 'set-rectangular-region-anchor)
 
 
 ;;folders setup
