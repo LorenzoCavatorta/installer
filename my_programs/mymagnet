@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+
+STORE_FLD="/home/lollo/Desktop"
+TEMP_FILENAME="$(date +%Y-%m-%d_%H:%M:%S)_temp.magnet"
+STACK_FILENAME="$(date +%Y-%m-%d).magnet"
+
+TEMP_FILE="$STORE_FLD/$TEMP_FILENAME"
+STACK_FILE="$STORE_FLD/$STACK_FILENAME"
+
+MAGNET=$1
+
+echo "$MAGNET" > "$TEMP_FILE"
+echo "$MAGNET" >> "$STACK_FILE" 
+
+scp "$TEMP_FILE" lollo@sergio:/home/lollo/watch_torrent
+
+
+

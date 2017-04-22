@@ -1,0 +1,24 @@
+[Desktop Entry]
+Name=MyMagnet
+GenericName=BitTorrent Magnet Sender
+X-GNOME-FullName=BitTorrent Magnet Sender
+Comment=Download and share files over BitTorrent
+Exec=mymagnet %U
+Icon=transmission
+Terminal=true
+TryExec=mymagnet
+Type=Application
+StartupNotify=true
+MimeType=application/x-bittorrent;x-scheme-handler/magnet;
+Categories=Network;FileTransfer;P2P;GTK;
+#X-Ubuntu-Gettext-Domain=transmission
+X-AppInstall-Keywords=torrent 
+Actions=Pause;Minimize;
+
+[Desktop Action Pause]
+Name=Start Transmission with All Torrents Paused
+#Exec=transmission-gtk --paused
+
+[Desktop Action Minimize]
+Name=Start Transmission Minimized
+#Exec=transmission-gtk --minimized
