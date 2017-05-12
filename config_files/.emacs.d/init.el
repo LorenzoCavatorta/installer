@@ -17,6 +17,7 @@
 ;;chosen packages
 (defvar myPackages
   '(better-defaults
+    multiple-cursors
     material-theme
     helm
     jedi
