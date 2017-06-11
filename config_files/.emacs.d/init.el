@@ -11,13 +11,14 @@
 	     ("marmalade" . "http://marmalade-repo.org/packages/") t)
 
 (package-initialize)
+
 (when (not package-archive-contents)
   (package-refresh-contents))
 
 ;;chosen packages
 (defvar myPackages
-  '(better-defaults
-    multiple-cursors
+  '(multiple-cursors
+    better-defaults
     material-theme
     helm
     jedi
@@ -108,14 +109,14 @@
 (global-set-key (kbd "C-z C-q") 'dumb-jump-quick-look)
 (global-set-key (kbd "C-z C-p") 'dumb-jump-back)
 ;;windows bindings
-(global-set-key (kbd "s-<left>") 'shrink-window-horizontally)
-(global-set-key (kbd "s-<right>") 'enlarge-window-horizontally)
-(global-set-key (kbd "s-<down>") 'shrink-window)
-(global-set-key (kbd "s-<up>") 'enlarge-window)
-(global-set-key [M-left] 'windmove-left)          ; move to left window
-(global-set-key [M-right] 'windmove-right)        ; move to right window
-(global-set-key [M-up] 'windmove-up)              ; move to upper window
-(global-set-key [M-down] 'windmove-down)          ; move to lower window
+(global-set-key (kbd "s-M-<left>") 'shrink-window-horizontally)
+(global-set-key (kbd "s-M-<right>") 'enlarge-window-horizontally)
+(global-set-key (kbd "s-M-<down>") 'shrink-window)
+(global-set-key (kbd "s-M-<up>") 'enlarge-window)
+(global-set-key (kbd "s-<left>") 'windmove-left)          ; move to left window
+(global-set-key (kbd "s-<right>") 'windmove-right)        ; move to right window
+(global-set-key (kbd "s-<up>") 'windmove-up)              ; move to upper window
+(global-set-key (kbd "s-<down>") 'windmove-down)          ; move to lower window
 (global-set-key (kbd "C-x m") 'set-rectangular-region-anchor)
 
 
